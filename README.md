@@ -7,7 +7,7 @@
         using namespace std;
         int main()
         {
-            vvint d{
+            vvint d{//vvint见头文件
                 {4,0,0,5,2,0,7,0,3},
                 {0,0,0,0,0,3,0,0,0},
                 {1,0,0,0,0,7,0,0,0},
