@@ -7,16 +7,12 @@
 
 #include<iostream>
 #include <random>
-static std::default_random_engine e(time(0));
+static std::default_random_engine e(time(0));//c++11，需要头文件random，windows可能还需要头文件ctime
 static std::uniform_int_distribution<int> u(0,1);
 #include "sudokucrack.h"
 vvint SudokuCrack::result;
 SudokuCrack::SudokuCrack(vvint& tt) : vvnum(tt)
 {}
-void SudokuCrack::setInitNum( vvint& tt)
-{
-    vvnum = tt;
-}
 int SudokuCrack::beginCrack()
 {
     int n=isBad();
@@ -26,9 +22,10 @@ int SudokuCrack::beginCrack()
     selectBetter();
     return 0;
 }
+//该函数返回值为int，不是bool，这样我们可以发生错误时返回一个错误代码
 int SudokuCrack::selectBetter()
 {
-    vint min_locate ( 2,0 );
+    vint min_locate ( 2,0 );//可能的最大值是9，这个这是初始值，用于被代替
     int min_lack=10;
     int lack_num = 10;
     for( int i=0 ; i<9 ;++i )
@@ -39,12 +36,12 @@ int SudokuCrack::selectBetter()
             if( lack_num < min_lack  )
             {
                 min_lack = lack_num;
-                min_locate[0]=i;
+                min_locate[0]=i;//保存坐标
                 min_locate[1]=j;
             }
             else if(lack_num == min_lack)
             {
-                if( u(e)  )
+                if( u(e)  )//随机进行选择
                 {
                     min_locate[0]=i;
                     min_locate[1]=j;
@@ -52,16 +49,16 @@ int SudokuCrack::selectBetter()
             }
         }
     }
-    if( min_lack == 10 )
+    if( min_lack == 10 )//最小的点上缺少的个数为10个，就表明所有点上都有数字了，没有下一步可选了，只能判断是否胜利
     {
         if( checkwin() )
         {
             result=vvnum;
-            return 1;
+            return 1;//返回1求值成功，不再继续计算
         }    
-        else return 0;
+        else return 0;//不然就失败
     }
-    return attemptLocate( min_locate[0]  ,min_locate[1] );
+    return attemptLocate( min_locate[0]  ,min_locate[1] );//对最优点一个一个的“猜”，猜的结果返回
 }
 int SudokuCrack::countLackNum(int i ,int j)
 {
@@ -78,7 +75,7 @@ sint& SudokuCrack::getLackedNumSet(int i,int j )
         d.erase(vvnum[i][m]);
         d.erase(vvnum[m][j]);
     }
-    int m =i/3*3, n=j/3*3;
+    int m =i/3*3, n=j/3*3;// 0 3 6
     for( int q=0; q<3; ++q )
     {
         for( int p=0 ;p<3; ++p )
@@ -90,7 +87,7 @@ sint& SudokuCrack::getLackedNumSet(int i,int j )
 }
 int SudokuCrack::attemptLocate( int i, int j )
 {
-    sint d = getLackedNumSet( i , j );
+    sint d = getLackedNumSet( i , j );//保存有该点可能的所有数字
     sint::iterator it=d.begin();
     for( ; it!=d.end(); ++it )
     {
@@ -113,15 +110,15 @@ bool SudokuCrack::checkwin()
             a.insert(vvnum[i][j]);
             b.insert(vvnum[j][i]);
         }
-        if( a!=ss || b!=ss )
+        if( a!=ss || b!=ss )//任意一个不相等，就没有求解成功
             return 0;
     }
-    for( int m=0 ;m<7; m+=3 )
+    for( int m=0 ;m<7; m+=3 )//3×3个
     {
         for( int n=0; n<7 ; n+=3 )
         {
             sint d;
-            for(int i=0 ;i<3; ++i)
+            for(int i=0 ;i<3; ++i)//3×3宫格
             {
                 for( int j=0 ;j<3; ++j )
                 {
@@ -153,12 +150,12 @@ int SudokuCrack::isBad()
         {
             if(vvnum[i][j]!=0)
             {
-                if( a.find(vvnum[i][j])==a.end() ) 
+                if( a.find(vvnum[i][j])==a.end() ) //没找到就插入
                     a.insert(vvnum[i][j]);
-                else
+                else//找到了相同值就报错
                 {
                     std::cout<<i<<j<<"  "<<vvnum[i][j]<<std::endl;
-                    return 1;
+                    return 1;//错误代码1
                 }
             }
             if(vvnum[j][i]!=0)
